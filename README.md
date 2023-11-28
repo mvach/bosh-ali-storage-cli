@@ -25,4 +25,12 @@ Given a JSON config file (`config.json`)...
 # Fetch a blob from the blobstore.
 # Destination file will be overwritten if exists.
 ./bosh-ali-storage-cli -c config.json get <remote-blob> <path/to/file>
+
+# Command: "delete"
+# Remove a blob from the blobstore.
+./bosh-ali-storage-cli -c config.json delete <remote-blob>
+
+# Command: "exists"
+# Checks if blob exists in the blobstore.
+./bosh-ali-storage-cli -c config.json exists <remote-blob>
 ```

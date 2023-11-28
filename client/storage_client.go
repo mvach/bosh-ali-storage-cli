@@ -18,6 +18,14 @@ type StorageClient interface {
 		sourceObject string,
 		destinationFilePath string,
 	) error
+
+	Delete(
+		object string,
+	) error
+
+	Exists(
+		object string,
+	) (bool, error)
 }
 
 type DefaultStorageClient struct {
@@ -64,4 +72,38 @@ func (dsc DefaultStorageClient) Download(
 	}
 
 	return bucket.GetObjectToFile(sourceObject, destinationFilePath)
+}
+
+func (dsc DefaultStorageClient) Delete(
+	object string,
+) error {
+	log.Println(fmt.Sprintf("Deleting %s/%s", dsc.storageConfig.BucketName, object))
+
+	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
+	if err != nil {
+		return err
+	}
+
+	bucket, err := client.Bucket(dsc.storageConfig.BucketName)
+	if err != nil {
+		return err
+	}
+
+	return bucket.DeleteObject(object)
+}
+
+func (dsc DefaultStorageClient) Exists(object string) (bool, error) {
+	log.Println(fmt.Sprintf("Checking if blob: %s/%s", dsc.storageConfig.BucketName, object))
+
+	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
+	if err != nil {
+		return false, err
+	}
+
+	bucket, err := client.Bucket(dsc.storageConfig.BucketName)
+	if err != nil {
+		return false, err
+	}
+
+	return bucket.IsObjectExist(object)
 }

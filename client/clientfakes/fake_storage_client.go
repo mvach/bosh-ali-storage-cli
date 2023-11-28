@@ -8,6 +8,17 @@ import (
 )
 
 type FakeStorageClient struct {
+	DeleteStub        func(string) error
+	deleteMutex       sync.RWMutex
+	deleteArgsForCall []struct {
+		arg1 string
+	}
+	deleteReturns struct {
+		result1 error
+	}
+	deleteReturnsOnCall map[int]struct {
+		result1 error
+	}
 	DownloadStub        func(string, string) error
 	downloadMutex       sync.RWMutex
 	downloadArgsForCall []struct {
@@ -19,6 +30,19 @@ type FakeStorageClient struct {
 	}
 	downloadReturnsOnCall map[int]struct {
 		result1 error
+	}
+	ExistsStub        func(string) (bool, error)
+	existsMutex       sync.RWMutex
+	existsArgsForCall []struct {
+		arg1 string
+	}
+	existsReturns struct {
+		result1 bool
+		result2 error
+	}
+	existsReturnsOnCall map[int]struct {
+		result1 bool
+		result2 error
 	}
 	UploadStub        func(string, string) error
 	uploadMutex       sync.RWMutex
@@ -34,6 +58,67 @@ type FakeStorageClient struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeStorageClient) Delete(arg1 string) error {
+	fake.deleteMutex.Lock()
+	ret, specificReturn := fake.deleteReturnsOnCall[len(fake.deleteArgsForCall)]
+	fake.deleteArgsForCall = append(fake.deleteArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.DeleteStub
+	fakeReturns := fake.deleteReturns
+	fake.recordInvocation("Delete", []interface{}{arg1})
+	fake.deleteMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *FakeStorageClient) DeleteCallCount() int {
+	fake.deleteMutex.RLock()
+	defer fake.deleteMutex.RUnlock()
+	return len(fake.deleteArgsForCall)
+}
+
+func (fake *FakeStorageClient) DeleteCalls(stub func(string) error) {
+	fake.deleteMutex.Lock()
+	defer fake.deleteMutex.Unlock()
+	fake.DeleteStub = stub
+}
+
+func (fake *FakeStorageClient) DeleteArgsForCall(i int) string {
+	fake.deleteMutex.RLock()
+	defer fake.deleteMutex.RUnlock()
+	argsForCall := fake.deleteArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeStorageClient) DeleteReturns(result1 error) {
+	fake.deleteMutex.Lock()
+	defer fake.deleteMutex.Unlock()
+	fake.DeleteStub = nil
+	fake.deleteReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeStorageClient) DeleteReturnsOnCall(i int, result1 error) {
+	fake.deleteMutex.Lock()
+	defer fake.deleteMutex.Unlock()
+	fake.DeleteStub = nil
+	if fake.deleteReturnsOnCall == nil {
+		fake.deleteReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.deleteReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeStorageClient) Download(arg1 string, arg2 string) error {
@@ -96,6 +181,70 @@ func (fake *FakeStorageClient) DownloadReturnsOnCall(i int, result1 error) {
 	fake.downloadReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *FakeStorageClient) Exists(arg1 string) (bool, error) {
+	fake.existsMutex.Lock()
+	ret, specificReturn := fake.existsReturnsOnCall[len(fake.existsArgsForCall)]
+	fake.existsArgsForCall = append(fake.existsArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.ExistsStub
+	fakeReturns := fake.existsReturns
+	fake.recordInvocation("Exists", []interface{}{arg1})
+	fake.existsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStorageClient) ExistsCallCount() int {
+	fake.existsMutex.RLock()
+	defer fake.existsMutex.RUnlock()
+	return len(fake.existsArgsForCall)
+}
+
+func (fake *FakeStorageClient) ExistsCalls(stub func(string) (bool, error)) {
+	fake.existsMutex.Lock()
+	defer fake.existsMutex.Unlock()
+	fake.ExistsStub = stub
+}
+
+func (fake *FakeStorageClient) ExistsArgsForCall(i int) string {
+	fake.existsMutex.RLock()
+	defer fake.existsMutex.RUnlock()
+	argsForCall := fake.existsArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeStorageClient) ExistsReturns(result1 bool, result2 error) {
+	fake.existsMutex.Lock()
+	defer fake.existsMutex.Unlock()
+	fake.ExistsStub = nil
+	fake.existsReturns = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStorageClient) ExistsReturnsOnCall(i int, result1 bool, result2 error) {
+	fake.existsMutex.Lock()
+	defer fake.existsMutex.Unlock()
+	fake.ExistsStub = nil
+	if fake.existsReturnsOnCall == nil {
+		fake.existsReturnsOnCall = make(map[int]struct {
+			result1 bool
+			result2 error
+		})
+	}
+	fake.existsReturnsOnCall[i] = struct {
+		result1 bool
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeStorageClient) Upload(arg1 string, arg2 string) error {
@@ -163,8 +312,12 @@ func (fake *FakeStorageClient) UploadReturnsOnCall(i int, result1 error) {
 func (fake *FakeStorageClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.deleteMutex.RLock()
+	defer fake.deleteMutex.RUnlock()
 	fake.downloadMutex.RLock()
 	defer fake.downloadMutex.RUnlock()
+	fake.existsMutex.RLock()
+	defer fake.existsMutex.RUnlock()
 	fake.uploadMutex.RLock()
 	defer fake.uploadMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
