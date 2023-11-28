@@ -7,12 +7,12 @@ import (
 
 type AliStorageConfig struct {
 	AccessKeyID     string `json:"access_key_id"`
-	SecretAccessKey string `json:"secret_access_key"`
+	AccessKeySecret string `json:"access_key_secret"`
 	Endpoint        string `json:"endpoint"`
 	BucketName      string `json:"bucket_name"`
 }
 
-// NewFromReader returns a new azure-storage-cli configuration struct from the contents of reader.
+// NewFromReader returns a new ali-storage-cli configuration struct from the contents of reader.
 // reader.Read() is expected to return valid JSON
 func NewFromReader(reader io.Reader) (AliStorageConfig, error) {
 	bytes, err := io.ReadAll(reader)
