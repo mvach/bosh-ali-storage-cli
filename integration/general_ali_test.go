@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"bytes"
+	"io/ioutil"
 	"os"
 
 	"github.com/cloudfoundry/bosh-ali-storage-cli/config"
@@ -13,22 +14,22 @@ import (
 
 var _ = Describe("General testing for all Ali regions", func() {
 
+	var blobName string
+	var configPath string
+	var contentFile string
+
+	BeforeEach(func() {
+		blobName = integration.GenerateRandomString()
+		configPath = integration.MakeConfigFile(&defaultConfig)
+		contentFile = integration.MakeContentFile("foo")
+	})
+
+	AfterEach(func() {
+		defer func() { _ = os.Remove(configPath) }()
+		defer func() { _ = os.Remove(contentFile) }()
+	})
+
 	Describe("Invoking `put`", func() {
-		var blobName string
-		var configPath string
-		var contentFile string
-
-		BeforeEach(func() {
-			blobName = integration.GenerateRandomString()
-			configPath = integration.MakeConfigFile(&defaultConfig)
-			contentFile = integration.MakeContentFile("foo")
-		})
-
-		AfterEach(func() {
-			defer func() { _ = os.Remove(configPath) }()
-			defer func() { _ = os.Remove(contentFile) }()
-		})
-
 		It("uploads a file", func() {
 			defer func() {
 				cliSession, err := integration.RunCli(cliPath, configPath, "delete", blobName)
@@ -101,6 +102,78 @@ var _ = Describe("General testing for all Ali regions", func() {
 			Expect(consoleOutput).To(ContainSubstring("upload failure"))
 		})
 	})
+
+	Describe("Invoking `get`", func() {
+		It("downloads a file", func() {
+			outputFilePath := "/tmp/" + integration.GenerateRandomString()
+
+			defer func() {
+				cliSession, err := integration.RunCli(cliPath, configPath, "delete", blobName)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(cliSession.ExitCode()).To(BeZero())
+
+				_ = os.Remove(outputFilePath)
+			}()
+
+			cliSession, err := integration.RunCli(cliPath, configPath, "put", contentFile, blobName)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(BeZero())
+
+			cliSession, err = integration.RunCli(cliPath, configPath, "get", blobName, outputFilePath)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(BeZero())
+
+			fileContent, _ := ioutil.ReadFile(outputFilePath)
+			Expect(string(fileContent)).To(Equal("foo"))
+		})
+	})
+
+	Describe("Invoking `delete`", func() {
+		It("deletes a file", func() {
+			defer func() {
+				cliSession, err := integration.RunCli(cliPath, configPath, "delete", blobName)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(cliSession.ExitCode()).To(BeZero())
+			}()
+
+			cliSession, err := integration.RunCli(cliPath, configPath, "put", contentFile, blobName)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(BeZero())
+
+			cliSession, err = integration.RunCli(cliPath, configPath, "delete", blobName)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(BeZero())
+
+			cliSession, err = integration.RunCli(cliPath, configPath, "exists", blobName)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(Equal(3))
+		})
+	})
+
+	Describe("Invoking `exists`", func() {
+		It("returns 0 for an existing blob", func() {
+			defer func() {
+				cliSession, err := integration.RunCli(cliPath, configPath, "delete", blobName)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(cliSession.ExitCode()).To(BeZero())
+			}()
+
+			cliSession, err := integration.RunCli(cliPath, configPath, "put", contentFile, blobName)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(BeZero())
+
+			cliSession, err = integration.RunCli(cliPath, configPath, "exists", blobName)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(Equal(0))
+		})
+
+		It("returns 3 for a not existing blob", func() {
+			cliSession, err := integration.RunCli(cliPath, configPath, "exists", blobName)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(Equal(3))
+		})
+	})
+
 	Describe("Invoking `-v`", func() {
 		It("returns the cli version", func() {
 			configPath := integration.MakeConfigFile(&defaultConfig)
