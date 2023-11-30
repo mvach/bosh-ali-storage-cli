@@ -115,7 +115,18 @@ func (dsc DefaultStorageClient) Exists(object string) (bool, error) {
 		return false, err
 	}
 
-	return bucket.IsObjectExist(object)
+	objectExists, err := bucket.IsObjectExist(object)
+	if err != nil {
+		return false, err
+	}
+
+	if objectExists {
+		log.Printf("File '%s' exists in bucket '%s'\n", object, dsc.storageConfig.BucketName)
+		return true, nil
+	} else {
+		log.Printf("File '%s' does not exist in bucket '%s'\n", object, dsc.storageConfig.BucketName)
+		return false, nil
+	}
 }
 
 func (dsc DefaultStorageClient) SignedUrlPut(

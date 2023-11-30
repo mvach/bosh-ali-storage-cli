@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -14,7 +15,13 @@ func New(storageClient StorageClient) (AliBlobstore, error) {
 }
 
 func (client *AliBlobstore) Put(sourceFilePath string, destinationObject string) error {
-	return client.storageClient.Upload(sourceFilePath, destinationObject)
+	err := client.storageClient.Upload(sourceFilePath, destinationObject)
+	if err != nil {
+		return fmt.Errorf("upload failure: %w", err)
+	}
+
+	log.Println("Successfully uploaded file")
+	return nil
 }
 
 func (client *AliBlobstore) Get(sourceObject string, destinationFilePath string) error {
