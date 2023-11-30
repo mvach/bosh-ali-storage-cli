@@ -100,4 +100,46 @@ var _ = Describe("Client", func() {
 			Expect(object).To(Equal("blob"))
 		})
 	})
+
+	Context("signed url", func() {
+		It("returns a signed url for action 'get'", func() {
+			storageClient := clientfakes.FakeStorageClient{}
+			storageClient.SignedUrlGetReturns("https://the-signed-url", nil)
+
+			aliBlobstore, _ := client.New(&storageClient)
+			url, err := aliBlobstore.Sign("blob", "get", 100)
+			Expect(url == "https://the-signed-url").To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
+
+			object, expiration := storageClient.SignedUrlGetArgsForCall(0)
+			Expect(object).To(Equal("blob"))
+			Expect(int(expiration)).To(Equal(100))
+		})
+
+		It("returns a signed url for action 'put'", func() {
+			storageClient := clientfakes.FakeStorageClient{}
+			storageClient.SignedUrlPutReturns("https://the-signed-url", nil)
+
+			aliBlobstore, _ := client.New(&storageClient)
+			url, err := aliBlobstore.Sign("blob", "put", 100)
+			Expect(url == "https://the-signed-url").To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
+
+			object, expiration := storageClient.SignedUrlPutArgsForCall(0)
+			Expect(object).To(Equal("blob"))
+			Expect(int(expiration)).To(Equal(100))
+		})
+
+		It("fails on unknown action", func() {
+			storageClient := clientfakes.FakeStorageClient{}
+			storageClient.SignedUrlGetReturns("", errors.New("boom"))
+
+			aliBlobstore, _ := client.New(&storageClient)
+			url, err := aliBlobstore.Sign("blob", "unknown", 100)
+			Expect(url).To(Equal(""))
+			Expect(err).To(HaveOccurred())
+
+			Expect(storageClient.SignedUrlGetCallCount()).To(Equal(0))
+		})
+	})
 })

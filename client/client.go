@@ -1,5 +1,10 @@
 package client
 
+import (
+	"fmt"
+	"strings"
+)
+
 type AliBlobstore struct {
 	storageClient StorageClient
 }
@@ -22,4 +27,16 @@ func (client *AliBlobstore) Delete(object string) error {
 
 func (client *AliBlobstore) Exists(object string) (bool, error) {
 	return client.storageClient.Exists(object)
+}
+
+func (client *AliBlobstore) Sign(object string, action string, expiredInSec int64) (string, error) {
+	action = strings.ToUpper(action)
+	switch action {
+	case "PUT":
+		return client.storageClient.SignedUrlPut(object, expiredInSec)
+	case "GET":
+		return client.storageClient.SignedUrlGet(object, expiredInSec)
+	default:
+		return "", fmt.Errorf("action not implemented: %s", action)
+	}
 }

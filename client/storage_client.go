@@ -26,6 +26,16 @@ type StorageClient interface {
 	Exists(
 		object string,
 	) (bool, error)
+
+	SignedUrlPut(
+		object string,
+		expiredInSec int64,
+	) (string, error)
+
+	SignedUrlGet(
+		object string,
+		expiredInSec int64,
+	) (string, error)
 }
 
 type DefaultStorageClient struct {
@@ -106,4 +116,44 @@ func (dsc DefaultStorageClient) Exists(object string) (bool, error) {
 	}
 
 	return bucket.IsObjectExist(object)
+}
+
+func (dsc DefaultStorageClient) SignedUrlPut(
+	object string,
+	expiredInSec int64,
+) (string, error) {
+
+	log.Println(fmt.Sprintf("Getting signed PUT url for blob %s/%s", dsc.storageConfig.BucketName, object))
+
+	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
+	if err != nil {
+		return "", err
+	}
+
+	bucket, err := client.Bucket(dsc.storageConfig.BucketName)
+	if err != nil {
+		return "", err
+	}
+
+	return bucket.SignURL(object, oss.HTTPPut, expiredInSec)
+}
+
+func (dsc DefaultStorageClient) SignedUrlGet(
+	object string,
+	expiredInSec int64,
+) (string, error) {
+
+	log.Println(fmt.Sprintf("Getting signed GET url for blob %s/%s", dsc.storageConfig.BucketName, object))
+
+	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
+	if err != nil {
+		return "", err
+	}
+
+	bucket, err := client.Bucket(dsc.storageConfig.BucketName)
+	if err != nil {
+		return "", err
+	}
+
+	return bucket.SignURL(object, oss.HTTPGet, expiredInSec)
 }

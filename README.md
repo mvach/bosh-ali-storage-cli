@@ -33,4 +33,19 @@ Given a JSON config file (`config.json`)...
 # Command: "exists"
 # Checks if blob exists in the blobstore.
 ./bosh-ali-storage-cli -c config.json exists <remote-blob>
+
+# Command: "sign"
+# Create a self-signed url for a blob in the blobstore.
+./bosh-ali-storage-cli -c config.json sign <remote-blob> <get|put> <seconds-to-expiration>
 ```
+
+### Using signed urls with curl
+``` bash
+# Uploading a blob:
+curl -X PUT -T path/to/file <signed url>
+
+# Downloading a blob:
+curl -X GET <signed url>
+```
+
+

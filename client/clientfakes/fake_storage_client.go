@@ -44,6 +44,34 @@ type FakeStorageClient struct {
 		result1 bool
 		result2 error
 	}
+	SignedUrlGetStub        func(string, int64) (string, error)
+	signedUrlGetMutex       sync.RWMutex
+	signedUrlGetArgsForCall []struct {
+		arg1 string
+		arg2 int64
+	}
+	signedUrlGetReturns struct {
+		result1 string
+		result2 error
+	}
+	signedUrlGetReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
+	SignedUrlPutStub        func(string, int64) (string, error)
+	signedUrlPutMutex       sync.RWMutex
+	signedUrlPutArgsForCall []struct {
+		arg1 string
+		arg2 int64
+	}
+	signedUrlPutReturns struct {
+		result1 string
+		result2 error
+	}
+	signedUrlPutReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	UploadStub        func(string, string) error
 	uploadMutex       sync.RWMutex
 	uploadArgsForCall []struct {
@@ -247,6 +275,136 @@ func (fake *FakeStorageClient) ExistsReturnsOnCall(i int, result1 bool, result2 
 	}{result1, result2}
 }
 
+func (fake *FakeStorageClient) SignedUrlGet(arg1 string, arg2 int64) (string, error) {
+	fake.signedUrlGetMutex.Lock()
+	ret, specificReturn := fake.signedUrlGetReturnsOnCall[len(fake.signedUrlGetArgsForCall)]
+	fake.signedUrlGetArgsForCall = append(fake.signedUrlGetArgsForCall, struct {
+		arg1 string
+		arg2 int64
+	}{arg1, arg2})
+	stub := fake.SignedUrlGetStub
+	fakeReturns := fake.signedUrlGetReturns
+	fake.recordInvocation("SignedUrlGet", []interface{}{arg1, arg2})
+	fake.signedUrlGetMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStorageClient) SignedUrlGetCallCount() int {
+	fake.signedUrlGetMutex.RLock()
+	defer fake.signedUrlGetMutex.RUnlock()
+	return len(fake.signedUrlGetArgsForCall)
+}
+
+func (fake *FakeStorageClient) SignedUrlGetCalls(stub func(string, int64) (string, error)) {
+	fake.signedUrlGetMutex.Lock()
+	defer fake.signedUrlGetMutex.Unlock()
+	fake.SignedUrlGetStub = stub
+}
+
+func (fake *FakeStorageClient) SignedUrlGetArgsForCall(i int) (string, int64) {
+	fake.signedUrlGetMutex.RLock()
+	defer fake.signedUrlGetMutex.RUnlock()
+	argsForCall := fake.signedUrlGetArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStorageClient) SignedUrlGetReturns(result1 string, result2 error) {
+	fake.signedUrlGetMutex.Lock()
+	defer fake.signedUrlGetMutex.Unlock()
+	fake.SignedUrlGetStub = nil
+	fake.signedUrlGetReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStorageClient) SignedUrlGetReturnsOnCall(i int, result1 string, result2 error) {
+	fake.signedUrlGetMutex.Lock()
+	defer fake.signedUrlGetMutex.Unlock()
+	fake.SignedUrlGetStub = nil
+	if fake.signedUrlGetReturnsOnCall == nil {
+		fake.signedUrlGetReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.signedUrlGetReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStorageClient) SignedUrlPut(arg1 string, arg2 int64) (string, error) {
+	fake.signedUrlPutMutex.Lock()
+	ret, specificReturn := fake.signedUrlPutReturnsOnCall[len(fake.signedUrlPutArgsForCall)]
+	fake.signedUrlPutArgsForCall = append(fake.signedUrlPutArgsForCall, struct {
+		arg1 string
+		arg2 int64
+	}{arg1, arg2})
+	stub := fake.SignedUrlPutStub
+	fakeReturns := fake.signedUrlPutReturns
+	fake.recordInvocation("SignedUrlPut", []interface{}{arg1, arg2})
+	fake.signedUrlPutMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeStorageClient) SignedUrlPutCallCount() int {
+	fake.signedUrlPutMutex.RLock()
+	defer fake.signedUrlPutMutex.RUnlock()
+	return len(fake.signedUrlPutArgsForCall)
+}
+
+func (fake *FakeStorageClient) SignedUrlPutCalls(stub func(string, int64) (string, error)) {
+	fake.signedUrlPutMutex.Lock()
+	defer fake.signedUrlPutMutex.Unlock()
+	fake.SignedUrlPutStub = stub
+}
+
+func (fake *FakeStorageClient) SignedUrlPutArgsForCall(i int) (string, int64) {
+	fake.signedUrlPutMutex.RLock()
+	defer fake.signedUrlPutMutex.RUnlock()
+	argsForCall := fake.signedUrlPutArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeStorageClient) SignedUrlPutReturns(result1 string, result2 error) {
+	fake.signedUrlPutMutex.Lock()
+	defer fake.signedUrlPutMutex.Unlock()
+	fake.SignedUrlPutStub = nil
+	fake.signedUrlPutReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeStorageClient) SignedUrlPutReturnsOnCall(i int, result1 string, result2 error) {
+	fake.signedUrlPutMutex.Lock()
+	defer fake.signedUrlPutMutex.Unlock()
+	fake.SignedUrlPutStub = nil
+	if fake.signedUrlPutReturnsOnCall == nil {
+		fake.signedUrlPutReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.signedUrlPutReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeStorageClient) Upload(arg1 string, arg2 string) error {
 	fake.uploadMutex.Lock()
 	ret, specificReturn := fake.uploadReturnsOnCall[len(fake.uploadArgsForCall)]
@@ -318,6 +476,10 @@ func (fake *FakeStorageClient) Invocations() map[string][][]interface{} {
 	defer fake.downloadMutex.RUnlock()
 	fake.existsMutex.RLock()
 	defer fake.existsMutex.RUnlock()
+	fake.signedUrlGetMutex.RLock()
+	defer fake.signedUrlGetMutex.RUnlock()
+	fake.signedUrlPutMutex.RLock()
+	defer fake.signedUrlPutMutex.RUnlock()
 	fake.uploadMutex.RLock()
 	defer fake.uploadMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

@@ -7,6 +7,7 @@ import (
 	"github.com/cloudfoundry/bosh-ali-storage-cli/config"
 	"log"
 	"os"
+	"time"
 )
 
 var version string
@@ -94,6 +95,32 @@ func main() {
 		if err == nil && !exists {
 			os.Exit(3)
 		}
+
+	case "sign":
+		if len(nonFlagArgs) != 4 {
+			log.Fatalf("Sign method expects 3 arguments got %d\n", len(nonFlagArgs)-1)
+		}
+
+		object, action := nonFlagArgs[1], nonFlagArgs[2]
+
+		if action != "get" && action != "put" {
+			log.Fatalf("Action not implemented: %s. Available actions are 'get' and 'put'", action)
+		}
+
+		duration, err := time.ParseDuration(nonFlagArgs[3])
+		if err != nil {
+			log.Fatalf("Expiration should be in the format of a duration i.e. 1h, 60m, 3600s. Got: %s", nonFlagArgs[3])
+		}
+
+		expiredInSec := int64(duration.Seconds())
+		signedURL, err := blobstoreClient.Sign(object, action, expiredInSec)
+
+		if err != nil {
+			log.Fatalf("Failed to sign request: %s", err)
+		}
+
+		fmt.Println(signedURL)
+		os.Exit(0)
 
 	default:
 		log.Fatalf("unknown command: '%s'\n", cmd)
