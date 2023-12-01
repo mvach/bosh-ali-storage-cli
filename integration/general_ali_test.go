@@ -174,6 +174,29 @@ var _ = Describe("General testing for all Ali regions", func() {
 		})
 	})
 
+	Describe("Invoking `sign`", func() {
+		It("returns 0 for an existing blob", func() {
+			cliSession, err := integration.RunCli(cliPath, configPath, "sign", "some-blob", "get", "60s")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(BeZero())
+
+			getUrl := bytes.NewBuffer(cliSession.Out.Contents()).String()
+			Expect(getUrl).To(MatchRegexp("http://" + bucketName + "." + endpoint + "/some-blob"))
+
+			cliSession, err = integration.RunCli(cliPath, configPath, "sign", "some-blob", "put", "60s")
+			Expect(err).ToNot(HaveOccurred())
+
+			putUrl := bytes.NewBuffer(cliSession.Out.Contents()).String()
+			Expect(putUrl).To(MatchRegexp("http://" + bucketName + "." + endpoint + "/some-blob"))
+		})
+
+		It("returns 3 for a not existing blob", func() {
+			cliSession, err := integration.RunCli(cliPath, configPath, "exists", blobName)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(cliSession.ExitCode()).To(Equal(3))
+		})
+	})
+
 	Describe("Invoking `-v`", func() {
 		It("returns the cli version", func() {
 			configPath := integration.MakeConfigFile(&defaultConfig)
