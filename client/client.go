@@ -1,8 +1,12 @@
 package client
 
 import (
+	"crypto/md5"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -15,7 +19,12 @@ func New(storageClient StorageClient) (AliBlobstore, error) {
 }
 
 func (client *AliBlobstore) Put(sourceFilePath string, destinationObject string) error {
-	err := client.storageClient.Upload(sourceFilePath, destinationObject)
+	sourceFileMD5, err := client.getMD5(sourceFilePath)
+	if err != nil {
+		return err
+	}
+
+	err = client.storageClient.Upload(sourceFilePath, sourceFileMD5, destinationObject)
 	if err != nil {
 		return fmt.Errorf("upload failure: %w", err)
 	}
@@ -46,4 +55,23 @@ func (client *AliBlobstore) Sign(object string, action string, expiredInSec int6
 	default:
 		return "", fmt.Errorf("action not implemented: %s", action)
 	}
+}
+
+func (client *AliBlobstore) getMD5(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	hash := md5.New()
+	_, err = io.Copy(hash, file)
+	if err != nil {
+		return "", fmt.Errorf("failed to calculate md5: %w", err)
+	}
+
+	md5 := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+
+	return md5, nil
 }

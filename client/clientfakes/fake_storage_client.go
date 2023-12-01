@@ -72,11 +72,12 @@ type FakeStorageClient struct {
 		result1 string
 		result2 error
 	}
-	UploadStub        func(string, string) error
+	UploadStub        func(string, string, string) error
 	uploadMutex       sync.RWMutex
 	uploadArgsForCall []struct {
 		arg1 string
 		arg2 string
+		arg3 string
 	}
 	uploadReturns struct {
 		result1 error
@@ -405,19 +406,20 @@ func (fake *FakeStorageClient) SignedUrlPutReturnsOnCall(i int, result1 string, 
 	}{result1, result2}
 }
 
-func (fake *FakeStorageClient) Upload(arg1 string, arg2 string) error {
+func (fake *FakeStorageClient) Upload(arg1 string, arg2 string, arg3 string) error {
 	fake.uploadMutex.Lock()
 	ret, specificReturn := fake.uploadReturnsOnCall[len(fake.uploadArgsForCall)]
 	fake.uploadArgsForCall = append(fake.uploadArgsForCall, struct {
 		arg1 string
 		arg2 string
-	}{arg1, arg2})
+		arg3 string
+	}{arg1, arg2, arg3})
 	stub := fake.UploadStub
 	fakeReturns := fake.uploadReturns
-	fake.recordInvocation("Upload", []interface{}{arg1, arg2})
+	fake.recordInvocation("Upload", []interface{}{arg1, arg2, arg3})
 	fake.uploadMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -431,17 +433,17 @@ func (fake *FakeStorageClient) UploadCallCount() int {
 	return len(fake.uploadArgsForCall)
 }
 
-func (fake *FakeStorageClient) UploadCalls(stub func(string, string) error) {
+func (fake *FakeStorageClient) UploadCalls(stub func(string, string, string) error) {
 	fake.uploadMutex.Lock()
 	defer fake.uploadMutex.Unlock()
 	fake.UploadStub = stub
 }
 
-func (fake *FakeStorageClient) UploadArgsForCall(i int) (string, string) {
+func (fake *FakeStorageClient) UploadArgsForCall(i int) (string, string, string) {
 	fake.uploadMutex.RLock()
 	defer fake.uploadMutex.RUnlock()
 	argsForCall := fake.uploadArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *FakeStorageClient) UploadReturns(result1 error) {

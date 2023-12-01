@@ -11,6 +11,7 @@ import (
 type StorageClient interface {
 	Upload(
 		sourceFilePath string,
+		sourceFileMD5 string,
 		destinationObject string,
 	) error
 
@@ -48,6 +49,7 @@ func NewStorageClient(storageConfig config.AliStorageConfig) (StorageClient, err
 
 func (dsc DefaultStorageClient) Upload(
 	sourceFilePath string,
+	sourceFileMD5 string,
 	destinationObject string,
 ) error {
 	log.Println(fmt.Sprintf("Uploading %s/%s", dsc.storageConfig.BucketName, destinationObject))
@@ -62,7 +64,7 @@ func (dsc DefaultStorageClient) Upload(
 		return err
 	}
 
-	return bucket.PutObjectFromFile(destinationObject, sourceFilePath)
+	return bucket.PutObjectFromFile(destinationObject, sourceFilePath, oss.ContentMD5(sourceFileMD5))
 }
 
 func (dsc DefaultStorageClient) Download(

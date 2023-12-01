@@ -6,6 +6,7 @@ import (
 	"github.com/cloudfoundry/bosh-ali-storage-cli/client/clientfakes"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"os"
 )
 
 var _ = Describe("Client", func() {
@@ -17,12 +18,15 @@ var _ = Describe("Client", func() {
 			aliBlobstore, err := client.New(&storageClient)
 			Expect(err).ToNot(HaveOccurred())
 
-			aliBlobstore.Put("source/file/path", "destination_object")
+			tmpFile, err := os.CreateTemp("", "azure-storage-cli-test")
+
+			aliBlobstore.Put(tmpFile.Name(), "destination_object")
 
 			Expect(storageClient.UploadCallCount()).To(Equal(1))
-			sourceFilePath, destination := storageClient.UploadArgsForCall(0)
+			sourceFilePath, sourceFileMD5, destination := storageClient.UploadArgsForCall(0)
 
 			Expect(sourceFilePath).To(BeAssignableToTypeOf("source/file/path"))
+			Expect(sourceFileMD5).To(Equal("1B2M2Y8AsgTpgAmY7PhCfg=="))
 			Expect(destination).To(Equal("destination_object"))
 		})
 	})
