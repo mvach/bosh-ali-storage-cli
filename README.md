@@ -47,5 +47,14 @@ curl -X PUT -T path/to/file <signed url>
 # Downloading a blob:
 curl -X GET <signed url>
 ```
+## Running integration tests
 
-
+To run the integration tests:
+- Export the following variables into your environment:
+  ``` bash
+  export ACCESS_KEY_ID=<your Alibaba access key id>
+  export ACCESS_KEY_SECRET=<your Alibaba access key secret>
+  export ENDPOINT=<your Alibaba OSS endpoint>
+  export BUCKET_NAME=<your Alibaba OSS bucket>
+  ```
+- go build && go test ./integration/...
